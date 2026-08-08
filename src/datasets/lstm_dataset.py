@@ -1,0 +1,272 @@
+"""
+LSTM dataset preparation for the Composer Classification project.
+Handles loading and preprocessing of MIDI data for LSTM models.
+"""
+
+import numpy as np
+import pandas as pd
+import warnings
+from pathlib import Path
+from typing import Tuple, List, Optional
+from tqdm import tqdm
+
+try:
+    import pretty_midi
+    PRETTY_MIDI_AVAILABLE = True
+except ImportError:
+    PRETTY_MIDI_AVAILABLE = False
+
+from src.utils.config import (SEQUENCE_LENGTH, LSTM_FEATURES_FILE, 
+                           COMPOSERS, COMPOSER_TO_LABEL, RANDOM_SEED)
+from src.utils.helpers import set_random_seed, ensure_dir
+from src.preprocessing.midi_loader import MIDILoader
+from src.features.note_features import extract_note_features
+
+
+class LSTMDataset:
+    """
+    Dataset class for LSTM model training.
+    """
+    
+    def __init__(self, 
+                 feature_type: str = 'combined',
+                 sequence_length: int = SEQUENCE_LENGTH,
+                 normalize: bool = True,
+                 random_seed: int = RANDOM_SEED):
+        """
+        Initialize LSTM dataset.
+        
+        Args:
+            feature_type: Type of features ('pitch', 'duration', 'velocity', 'combined', 'interval')
+            sequence_length: Maximum sequence length
+            normalize: Whether to normalize features
+            random_seed: Random seed for reproducibility
+        """
+        set_random_seed(random_seed)
+        
+        self.feature_type = feature_type
+        self.sequence_length = sequence_length
+        self.normalize = normalize
+        self.features = None
+        self.labels = None
+        self.filepaths = None
+        self.composers = None
+    
+    def load_from_metadata(self, metadata_df: pd.DataFrame) -> None:
+        """
+        Load dataset from metadata DataFrame.
+        
+        Args:
+            metadata_df: DataFrame with metadata containing filepath and label columns
+        """
+        features_list = []
+        labels_list = []
+        filepaths_list = []
+        composers_list = []
+        
+        print(f"Loading {len(metadata_df)} MIDI files for LSTM dataset...")
+        
+        for idx, row in tqdm(metadata_df.iterrows(), total=len(metadata_df)):
+            filepath = Path(row['filepath'])
+            
+            if not filepath.exists():
+                warnings.warn(f"File not found: {filepath}")
+                continue
+            
+            try:
+                midi = pretty_midi.PrettyMIDI(str(filepath))
+                features = extract_note_features(
+                    midi, 
+                    feature_type=self.feature_type,
+                    sequence_length=self.sequence_length,
+                    normalize=self.normalize
+                )
+                
+                features_list.append(features)
+                labels_list.append(row['label'])
+                filepaths_list.append(str(filepath))
+                composers_list.append(row['composer'])
+                
+            except Exception as e:
+                warnings.warn(f"Failed to process {filepath}: {e}")
+                continue
+        
+        self.features = np.array(features_list)
+        self.labels = np.array(labels_list)
+        self.filepaths = filepaths_list
+        self.composers = composers_list
+        
+        print(f"Loaded {len(self.features)} samples successfully")
+        print(f"Feature shape: {self.features.shape}")
+        print(f"Labels shape: {self.labels.shape}")
+    
+    def load_from_splits(self, train_df: pd.DataFrame, 
+                        val_df: pd.DataFrame, 
+                        test_df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray, 
+                                                         np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Load dataset from train/val/test splits.
+        
+        Args:
+            train_df: Training metadata
+            val_df: Validation metadata
+            test_df: Test metadata
+            
+        Returns:
+            Tuple of (X_train, y_train, X_val, y_val, X_test, y_test)
+        """
+        print("Loading training set...")
+        self.load_from_metadata(train_df)
+        X_train, y_train = self.features, self.labels
+        
+        print("Loading validation set...")
+        self.load_from_metadata(val_df)
+        X_val, y_val = self.features, self.labels
+        
+        print("Loading test set...")
+        self.load_from_metadata(test_df)
+        X_test, y_test = self.features, self.labels
+        
+        return X_train, y_train, X_val, y_val, X_test, y_test
+    
+    def save_dataset(self, output_path: Path = LSTM_FEATURES_FILE) -> None:
+        """
+        Save dataset to numpy file.
+        
+        Args:
+            output_path: Path to save dataset
+        """
+        ensure_dir(output_path.parent)
+        
+        np.savez_compressed(
+            output_path,
+            features=self.features,
+            labels=self.labels,
+            filepaths=np.array(self.filepaths),
+            composers=np.array(self.composers),
+            feature_type=self.feature_type,
+            sequence_length=self.sequence_length
+        )
+        
+        print(f"Saved dataset to {output_path}")
+    
+    def load_dataset(self, input_path: Path = LSTM_FEATURES_FILE) -> None:
+        """
+        Load dataset from numpy file.
+        
+        Args:
+            input_path: Path to load dataset from
+        """
+        data = np.load(input_path, allow_pickle=True)
+        
+        self.features = data['features']
+        self.labels = data['labels']
+        self.filepaths = data['filepaths'].tolist()
+        self.composers = data['composers'].tolist()
+        self.feature_type = str(data['feature_type'])
+        self.sequence_length = int(data['sequence_length'])
+        
+        print(f"Loaded dataset from {input_path}")
+        print(f"Feature shape: {self.features.shape}")
+        print(f"Labels shape: {self.labels.shape}")
+    
+    def get_train_test_split(self, test_size: float = 0.2, 
+                           random_state: int = RANDOM_SEED) -> Tuple[np.ndarray, np.ndarray, 
+                                                                       np.ndarray, np.ndarray]:
+        """
+        Split dataset into train and test sets.
+        
+        Args:
+            test_size: Proportion of test data
+            random_state: Random seed
+            
+        Returns:
+            Tuple of (X_train, y_train, X_test, y_test)
+        """
+        from sklearn.model_selection import train_test_split
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            self.features, self.labels,
+            test_size=test_size,
+            stratify=self.labels,
+            random_state=random_state
+        )
+        
+        return X_train, y_train, X_test, y_test
+    
+    def get_class_weights(self) -> dict:
+        """
+        Calculate class weights for imbalanced dataset.
+        
+        Returns:
+            Dictionary of class weights
+        """
+        from sklearn.utils.class_weight import compute_class_weight
+        
+        class_weights = compute_class_weight(
+            'balanced',
+            classes=np.unique(self.labels),
+            y=self.labels
+        )
+        
+        return {i: weight for i, weight in enumerate(class_weights)}
+    
+    def get_data_statistics(self) -> dict:
+        """
+        Get dataset statistics.
+        
+        Returns:
+            Dictionary with dataset statistics
+        """
+        stats = {
+            'num_samples': len(self.features),
+            'feature_shape': self.features.shape,
+            'num_classes': len(np.unique(self.labels)),
+            'class_distribution': {}
+        }
+        
+        for composer in COMPOSERS:
+            count = sum(1 for c in self.composers if c == composer)
+            stats['class_distribution'][composer] = count
+        
+        return stats
+
+
+def prepare_lstm_dataset(train_df: pd.DataFrame,
+                       val_df: pd.DataFrame,
+                       test_df: pd.DataFrame,
+                       feature_type: str = 'combined',
+                       sequence_length: int = SEQUENCE_LENGTH,
+                       normalize: bool = True,
+                       save_path: Path = LSTM_FEATURES_FILE) -> Tuple[np.ndarray, np.ndarray, 
+                                                                      np.ndarray, np.ndarray, 
+                                                                      np.ndarray, np.ndarray]:
+    """
+    Convenience function to prepare LSTM dataset from metadata splits.
+    
+    Args:
+        train_df: Training metadata
+        val_df: Validation metadata
+        test_df: Test metadata
+        feature_type: Type of features to extract
+        sequence_length: Maximum sequence length
+        normalize: Whether to normalize features
+        save_path: Path to save prepared dataset
+        
+    Returns:
+        Tuple of (X_train, y_train, X_val, y_val, X_test, y_test)
+    """
+    set_random_seed()
+    
+    dataset = LSTMDataset(feature_type, sequence_length, normalize)
+    X_train, y_train, X_val, y_val, X_test, y_test = dataset.load_from_splits(
+        train_df, val_df, test_df
+    )
+    
+    if save_path:
+        # Save training data as the main dataset
+        dataset.features = X_train
+        dataset.labels = y_train
+        dataset.save_dataset(save_path)
+    
+    return X_train, y_train, X_val, y_val, X_test, y_test
