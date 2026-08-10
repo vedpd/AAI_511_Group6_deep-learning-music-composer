@@ -483,7 +483,7 @@ CNN_BATCH_SIZE = 16   # Default: 32
 This project is part of the MS in Applied Artificial Intelligence program at the University of San Diego.
 
 ---
-MIT License
+## MIT License
 
 Copyright (c) 2024 Smart Parking IoT Project
 
