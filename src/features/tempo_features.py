@@ -31,7 +31,7 @@ class TempoFeatureExtractor:
         """
         set_random_seed(random_seed)
     
-    def extract_tempo_changes(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_tempo_changes(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract tempo changes from MIDI file.
         
@@ -48,7 +48,7 @@ class TempoFeatureExtractor:
             # If no tempo changes, return default
             return np.array([120.0])
     
-    def get_average_tempo(self, midi: pretty_midi.PrettyMIDI) -> float:
+    def get_average_tempo(self, midi: 'pretty_midi.PrettyMIDI') -> float:
         """
         Get average tempo from MIDI file.
         
@@ -61,7 +61,7 @@ class TempoFeatureExtractor:
         tempo_changes = self.extract_tempo_changes(midi)
         return float(np.mean(tempo_changes))
     
-    def get_tempo_variance(self, midi: pretty_midi.PrettyMIDI) -> float:
+    def get_tempo_variance(self, midi: 'pretty_midi.PrettyMIDI') -> float:
         """
         Get tempo variance from MIDI file.
         
@@ -74,7 +74,7 @@ class TempoFeatureExtractor:
         tempo_changes = self.extract_tempo_changes(midi)
         return float(np.var(tempo_changes))
     
-    def extract_note_durations(self, midi: pretty_midi.PrettyMIDI) -> List[float]:
+    def extract_note_durations(self, midi: 'pretty_midi.PrettyMIDI') -> List[float]:
         """
         Extract all note durations from MIDI file.
         
@@ -92,7 +92,7 @@ class TempoFeatureExtractor:
         
         return durations
     
-    def get_duration_statistics(self, midi: pretty_midi.PrettyMIDI) -> Dict[str, float]:
+    def get_duration_statistics(self, midi: 'pretty_midi.PrettyMIDI') -> Dict[str, float]:
         """
         Get statistics of note durations.
         
@@ -121,7 +121,7 @@ class TempoFeatureExtractor:
             'median_duration': float(np.median(durations))
         }
     
-    def extract_inter_onset_intervals(self, midi: pretty_midi.PrettyMIDI) -> List[float]:
+    def extract_inter_onset_intervals(self, midi: 'pretty_midi.PrettyMIDI') -> List[float]:
         """
         Extract inter-onset intervals (time between consecutive note starts).
         
@@ -148,7 +148,7 @@ class TempoFeatureExtractor:
         
         return intervals
     
-    def get_ioi_statistics(self, midi: pretty_midi.PrettyMIDI) -> Dict[str, float]:
+    def get_ioi_statistics(self, midi: 'pretty_midi.PrettyMIDI') -> Dict[str, float]:
         """
         Get statistics of inter-onset intervals.
         
@@ -177,7 +177,7 @@ class TempoFeatureExtractor:
             'median_ioi': float(np.median(iois))
         }
     
-    def extract_note_density(self, midi: pretty_midi.PrettyMIDI, window_size: float = 1.0) -> List[float]:
+    def extract_note_density(self, midi: 'pretty_midi.PrettyMIDI', window_size: float = 1.0) -> List[float]:
         """
         Extract note density over time (notes per second).
         
@@ -215,7 +215,7 @@ class TempoFeatureExtractor:
         
         return densities
     
-    def get_average_note_density(self, midi: pretty_midi.PrettyMIDI, window_size: float = 1.0) -> float:
+    def get_average_note_density(self, midi: 'pretty_midi.PrettyMIDI', window_size: float = 1.0) -> float:
         """
         Get average note density.
         
@@ -229,7 +229,7 @@ class TempoFeatureExtractor:
         densities = self.extract_note_density(midi, window_size)
         return float(np.mean(densities)) if densities else 0.0
     
-    def extract_velocity_statistics(self, midi: pretty_midi.PrettyMIDI) -> Dict[str, float]:
+    def extract_velocity_statistics(self, midi: 'pretty_midi.PrettyMIDI') -> Dict[str, float]:
         """
         Extract velocity statistics from MIDI file.
         
@@ -262,7 +262,7 @@ class TempoFeatureExtractor:
             'median_velocity': float(np.median(velocities))
         }
     
-    def extract_comprehensive_tempo_features(self, midi: pretty_midi.PrettyMIDI) -> Dict[str, any]:
+    def extract_comprehensive_tempo_features(self, midi: 'pretty_midi.PrettyMIDI') -> Dict[str, any]:
         """
         Extract comprehensive tempo and timing features.
         
@@ -296,7 +296,7 @@ class TempoFeatureExtractor:
         return features
 
 
-def extract_tempo_features(midi: pretty_midi.PrettyMIDI) -> Dict[str, any]:
+def extract_tempo_features(midi: 'pretty_midi.PrettyMIDI') -> Dict[str, any]:
     """
     Convenience function to extract tempo features from MIDI.
     

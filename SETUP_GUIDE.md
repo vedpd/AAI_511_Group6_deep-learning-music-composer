@@ -14,7 +14,7 @@
 
 2. **Navigate to the project directory**
    ```bash
-   cd AAI_511_Music_Composer
+   cd AAI_511_Group6_deep-learning-music-composer
    ```
 
 3. **Create conda environment from environment.yml**
@@ -39,7 +39,7 @@
 
 2. **Navigate to the project directory**
    ```bash
-   cd AAI_511_Music_Composer
+   cd AAI_511_Group6_deep-learning-music-composer
    ```
 
 3. **Create a virtual environment with Python 3.10**
@@ -133,7 +133,7 @@ Modify these parameters as needed for your experiments.
 ## Project Structure
 
 ```
-AAI_511_Music_Composer/
+AAI_511_Group6_deep-learning-music-composer/
 ├── data/
 │   ├── raw/              # Original MIDI files
 │   ├── interim/          # Cleaned metadata and splits

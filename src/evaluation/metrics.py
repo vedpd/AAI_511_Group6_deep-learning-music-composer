@@ -4,6 +4,7 @@ Implements comprehensive evaluation metrics and analysis tools.
 """
 
 import numpy as np
+import pandas as pd
 from typing import Dict, List, Tuple
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, 
                            f1_score, confusion_matrix, classification_report,
@@ -48,6 +49,7 @@ class ModelEvaluator:
         precision = precision_score(y_true, y_pred, average='weighted')
         recall = recall_score(y_true, y_pred, average='weighted')
         f1 = f1_score(y_true, y_pred, average='weighted')
+        macro_f1 = f1_score(y_true, y_pred, average='macro')
         
         # Per-class metrics
         precision_per_class = precision_score(y_true, y_pred, average=None)
@@ -59,6 +61,7 @@ class ModelEvaluator:
             'precision': precision,
             'recall': recall,
             'f1_score': f1,
+            'macro_f1': macro_f1,
             'precision_per_class': dict(zip(self.class_names, precision_per_class)),
             'recall_per_class': dict(zip(self.class_names, recall_per_class)),
             'f1_per_class': dict(zip(self.class_names, f1_per_class))
@@ -215,7 +218,8 @@ class ModelEvaluator:
         print(f"Accuracy:  {metrics['accuracy']:.4f}")
         print(f"Precision: {metrics['precision']:.4f}")
         print(f"Recall:    {metrics['recall']:.4f}")
-        print(f"F1 Score:  {metrics['f1_score']:.4f}")
+        print(f"F1 Score (weighted): {metrics['f1_score']:.4f}")
+        print(f"F1 Score (macro):    {metrics['macro_f1']:.4f}")
         
         if 'roc_auc' in metrics:
             print(f"ROC-AUC:   {metrics['roc_auc']:.4f}")

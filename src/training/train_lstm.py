@@ -140,20 +140,23 @@ class LSTMTrainer:
         precision = precision_score(y_test, y_pred, average='weighted')
         recall = recall_score(y_test, y_pred, average='weighted')
         f1 = f1_score(y_test, y_pred, average='weighted')
+        macro_f1 = f1_score(y_test, y_pred, average='macro')
         
         metrics = {
             'test_loss': test_loss,
             'test_accuracy': test_accuracy,
             'precision': precision,
             'recall': recall,
-            'f1_score': f1
+            'f1_score': f1,
+            'macro_f1': macro_f1
         }
         
         print(f"Test Loss: {test_loss:.4f}")
         print(f"Test Accuracy: {test_accuracy:.4f}")
         print(f"Precision: {precision:.4f}")
         print(f"Recall: {recall:.4f}")
-        print(f"F1 Score: {f1:.4f}")
+        print(f"F1 Score (weighted): {f1:.4f}")
+        print(f"F1 Score (macro):    {macro_f1:.4f}")
         
         return metrics
     

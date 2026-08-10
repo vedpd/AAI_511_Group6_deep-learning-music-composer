@@ -9,7 +9,7 @@ from pathlib import Path
 # Base paths
 BASE_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = BASE_DIR / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
+RAW_DATA_DIR = BASE_DIR / "Data" / "midiclassics"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 FEATURES_DIR = DATA_DIR / "features"
@@ -30,7 +30,6 @@ LABEL_TO_COMPOSER = {idx: composer for idx, composer in enumerate(COMPOSERS)}
 # Data processing
 SEQUENCE_LENGTH = 500  # Maximum sequence length for LSTM
 MAX_TIME_STEPS = 1000  # Maximum time steps for CNN piano roll
-SAMPLE_RATE = 44100
 MIN_NOTES = 10  # Minimum number of notes to keep a file
 
 # Feature extraction
@@ -73,11 +72,9 @@ CNN_EARLY_STOPPING_PATIENCE = 10
 
 # Training settings
 USE_AUGMENTATION = True
-NUM_WORKERS = 4
-PIN_MEMORY = True
 
 # Evaluation metrics
-METRICS = ["accuracy", "precision", "recall", "f1_score"]
+METRICS = ["accuracy", "precision", "recall", "f1_score", "macro_f1"]
 
 # Visualization
 FIGURE_DPI = 300
@@ -103,8 +100,9 @@ HP_TUNING_EPOCHS = 10
 # Random seed for reproducibility
 RANDOM_SEED = 42
 
-# Ensure directories exist
-for dir_path in [DATA_DIR, RAW_DATA_DIR, INTERIM_DATA_DIR, PROCESSED_DATA_DIR, 
-                 FEATURES_DIR, MODELS_DIR, CHECKPOINTS_DIR, SAVED_MODELS_DIR,
-                 REPORTS_DIR, FIGURES_DIR, TABLES_DIR, NOTEBOOKS_DIR]:
-    dir_path.mkdir(parents=True, exist_ok=True)
+def ensure_directories():
+    """Create project directories on demand (not on import)."""
+    for dir_path in [DATA_DIR, INTERIM_DATA_DIR, PROCESSED_DATA_DIR,
+                     FEATURES_DIR, MODELS_DIR, CHECKPOINTS_DIR, SAVED_MODELS_DIR,
+                     REPORTS_DIR, FIGURES_DIR, TABLES_DIR, NOTEBOOKS_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)

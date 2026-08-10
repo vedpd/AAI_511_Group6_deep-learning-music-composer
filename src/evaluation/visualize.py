@@ -85,7 +85,9 @@ class ModelVisualizer:
             Matplotlib figure
         """
         models = list(metrics_dict.keys())
-        metrics = list(metrics_dict[models[0]].keys())
+        # Only include scalar (numeric) metrics, skip nested dicts like per_class_metrics
+        metrics = [k for k, v in metrics_dict[models[0]].items()
+                   if isinstance(v, (int, float, np.floating, np.integer))]
         
         x = np.arange(len(metrics))
         width = 0.35
@@ -93,7 +95,7 @@ class ModelVisualizer:
         fig, ax = plt.subplots(figsize=(12, 6))
         
         for i, model in enumerate(models):
-            values = [metrics_dict[model].get(metric, 0) for metric in metrics]
+            values = [float(metrics_dict[model].get(metric, 0)) for metric in metrics]
             offset = width * (i - (len(models) - 1) / 2)
             ax.bar(x + offset, values, width, label=model)
         

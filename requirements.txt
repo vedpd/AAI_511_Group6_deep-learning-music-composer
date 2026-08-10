@@ -1,5 +1,5 @@
 # Python version: 3.9-3.10 recommended for TensorFlow 2.13+
-tensorflow>=2.13.0
+tensorflow
 keras>=2.13.0
 numpy>=1.24.0
 pandas>=2.0.0

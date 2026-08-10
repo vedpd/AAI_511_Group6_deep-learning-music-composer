@@ -7,13 +7,15 @@ All components for the Composer Classification project have been successfully ge
 ## 📁 Generated Structure
 
 ```
-AAI_511_Music_Composer/
+AAI_511_Group6_deep-learning-music-composer/
+├── Data/
+│   └── midiclassics/
+│       ├── Bach/
+│       ├── Beethoven/
+│       ├── Chopin/
+│       └── Mozart/
 ├── data/
-│   ├── raw/
-│   │   ├── Bach/ (145 files)
-│   │   ├── Beethoven/ (142 files)
-│   │   ├── Chopin/ (136 files)
-│   │   └── Mozart/ (94 files)
+│   ├── raw/ (symlink to Data/midiclassics/)
 │   ├── interim/
 │   ├── processed/
 │   └── features/
@@ -136,11 +138,11 @@ Use the evaluation results and visualizations to create your APA 7 formatted rep
 
 ## 📊 Dataset Summary
 
-- **Total files**: 517 MIDI files across 4 composers
-- **Bach**: 145 files
-- **Beethoven**: 142 files  
-- **Chopin**: 136 files
-- **Mozart**: 94 files
+- **Source**: Kaggle MIDI Classic Music Dataset
+- **Composers**: Bach, Beethoven, Chopin, Mozart
+- **Location**: `Data/midiclassics/{Composer}/`
+- **Format**: MIDI files (.mid)
+- **Note**: File counts vary; actual counts are determined at runtime by `load_midi_dataset()`
 
 ## 🔧 Configuration Highlights
 

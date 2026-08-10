@@ -70,7 +70,7 @@ class ChordFeatureExtractor:
             'Bm': [11, 2, 6]
         }
     
-    def get_active_pitches(self, midi: pretty_midi.PrettyMIDI, time: float, window: float = 0.1) -> List[int]:
+    def get_active_pitches(self, midi: 'pretty_midi.PrettyMIDI', time: float, window: float = 0.1) -> List[int]:
         """
         Get list of active pitches at a given time.
         
@@ -122,7 +122,7 @@ class ChordFeatureExtractor:
         
         return 'N.C.'
     
-    def extract_chord_progression(self, midi: pretty_midi.PrettyMIDI, time_step: float = 0.5) -> List[str]:
+    def extract_chord_progression(self, midi: 'pretty_midi.PrettyMIDI', time_step: float = 0.5) -> List[str]:
         """
         Extract chord progression over time.
         
@@ -174,7 +174,7 @@ class ChordFeatureExtractor:
         
         return stats
     
-    def extract_chord_features(self, midi: pretty_midi.PrettyMIDI, time_step: float = 0.5) -> Dict[str, any]:
+    def extract_chord_features(self, midi: 'pretty_midi.PrettyMIDI', time_step: float = 0.5) -> Dict[str, any]:
         """
         Extract comprehensive chord features from MIDI.
         
@@ -190,7 +190,7 @@ class ChordFeatureExtractor:
         
         return chord_stats
     
-    def get_key_signature_estimation(self, midi: pretty_midi.PrettyMIDI) -> str:
+    def get_key_signature_estimation(self, midi: 'pretty_midi.PrettyMIDI') -> str:
         """
         Estimate key signature from pitch distribution.
         
@@ -225,7 +225,7 @@ class ChordFeatureExtractor:
         return key_map.get(most_common_pitch, 'C')
 
 
-def extract_chord_features(midi: pretty_midi.PrettyMIDI, time_step: float = 0.5) -> Dict[str, any]:
+def extract_chord_features(midi: 'pretty_midi.PrettyMIDI', time_step: float = 0.5) -> Dict[str, any]:
     """
     Convenience function to extract chord features from MIDI.
     

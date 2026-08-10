@@ -33,7 +33,7 @@ class NoteFeatureExtractor:
         set_random_seed(random_seed)
         self.sequence_length = sequence_length
     
-    def extract_note_sequence(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_note_sequence(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract note sequence (pitch values ordered by time).
         
@@ -62,7 +62,7 @@ class NoteFeatureExtractor:
         
         return pitches
     
-    def extract_pitch_sequence(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_pitch_sequence(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract pitch sequence with padding/truncation.
         
@@ -83,7 +83,7 @@ class NoteFeatureExtractor:
             padded[:len(pitches)] = pitches
             return padded
     
-    def extract_duration_sequence(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_duration_sequence(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract note duration sequence.
         
@@ -119,7 +119,7 @@ class NoteFeatureExtractor:
             padded[:len(durations)] = durations
             return padded
     
-    def extract_velocity_sequence(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_velocity_sequence(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract note velocity sequence.
         
@@ -155,7 +155,7 @@ class NoteFeatureExtractor:
             padded[:len(velocities)] = velocities
             return padded
     
-    def extract_combined_features(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_combined_features(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract combined note features (pitch, duration, velocity).
         
@@ -199,7 +199,7 @@ class NoteFeatureExtractor:
             padded[:len(features)] = features
             return padded
     
-    def extract_interval_sequence(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_interval_sequence(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract pitch interval sequence (differences between consecutive notes).
         
@@ -255,7 +255,7 @@ class NoteFeatureExtractor:
             return features
 
 
-def extract_note_features(midi: pretty_midi.PrettyMIDI,
+def extract_note_features(midi: 'pretty_midi.PrettyMIDI',
                          feature_type: str = 'combined',
                          sequence_length: int = SEQUENCE_LENGTH,
                          normalize: bool = True) -> np.ndarray:

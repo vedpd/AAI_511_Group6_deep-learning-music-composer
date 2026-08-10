@@ -45,7 +45,7 @@ class MIDILoader:
         self.composers = composers
         self.metadata = []
         
-    def load_midi_file(self, filepath: Path) -> Optional[pretty_midi.PrettyMIDI]:
+    def load_midi_file(self, filepath: Path) -> Optional['pretty_midi.PrettyMIDI']:
         """
         Load a single MIDI file using pretty_midi.
         
@@ -65,7 +65,7 @@ class MIDILoader:
             warnings.warn(f"Failed to load {filepath}: {e}")
             return None
     
-    def extract_metadata(self, midi: pretty_midi.PrettyMIDI, filepath: Path, composer: str) -> Dict[str, any]:
+    def extract_metadata(self, midi: 'pretty_midi.PrettyMIDI', filepath: Path, composer: str) -> Dict[str, any]:
         """
         Extract metadata from MIDI file.
         

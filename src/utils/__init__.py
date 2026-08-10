@@ -8,6 +8,7 @@ from .helpers import *
 __all__ = [
     'set_random_seed',
     'ensure_dir',
+    'ensure_directories',
     'save_json',
     'load_json',
     'plot_training_history',

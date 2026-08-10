@@ -49,7 +49,7 @@ class MIDIAugmentation:
         self.time_shift_max = time_shift_max
         self.enabled = AUGMENTATION_ENABLED
     
-    def pitch_shift(self, midi: pretty_midi.PrettyMIDI, semitones: int) -> pretty_midi.PrettyMIDI:
+    def pitch_shift(self, midi: 'pretty_midi.PrettyMIDI', semitones: int) -> 'pretty_midi.PrettyMIDI':
         """
         Shift pitch of all notes by semitones.
         
@@ -70,7 +70,7 @@ class MIDIAugmentation:
         
         return augmented
     
-    def random_pitch_shift(self, midi: pretty_midi.PrettyMIDI) -> pretty_midi.PrettyMIDI:
+    def random_pitch_shift(self, midi: 'pretty_midi.PrettyMIDI') -> 'pretty_midi.PrettyMIDI':
         """
         Apply random pitch shift within configured range.
         
@@ -83,7 +83,7 @@ class MIDIAugmentation:
         semitones = random.randint(self.pitch_shift_range[0], self.pitch_shift_range[1])
         return self.pitch_shift(midi, semitones)
     
-    def tempo_scale(self, midi: pretty_midi.PrettyMIDI, scale_factor: float) -> pretty_midi.PrettyMIDI:
+    def tempo_scale(self, midi: 'pretty_midi.PrettyMIDI', scale_factor: float) -> 'pretty_midi.PrettyMIDI':
         """
         Scale tempo (note timing) by factor.
         
@@ -103,7 +103,7 @@ class MIDIAugmentation:
         
         return augmented
     
-    def random_tempo_scale(self, midi: pretty_midi.PrettyMIDI) -> pretty_midi.PrettyMIDI:
+    def random_tempo_scale(self, midi: 'pretty_midi.PrettyMIDI') -> 'pretty_midi.PrettyMIDI':
         """
         Apply random tempo scaling within configured range.
         
@@ -116,7 +116,7 @@ class MIDIAugmentation:
         scale_factor = random.uniform(self.tempo_scale_range[0], self.tempo_scale_range[1])
         return self.tempo_scale(midi, scale_factor)
     
-    def velocity_variation(self, midi: pretty_midi.PrettyMIDI, variation_factor: float) -> pretty_midi.PrettyMIDI:
+    def velocity_variation(self, midi: 'pretty_midi.PrettyMIDI', variation_factor: float) -> 'pretty_midi.PrettyMIDI':
         """
         Vary note velocities by factor.
         
@@ -137,7 +137,7 @@ class MIDIAugmentation:
         
         return augmented
     
-    def random_velocity_variation(self, midi: pretty_midi.PrettyMIDI) -> pretty_midi.PrettyMIDI:
+    def random_velocity_variation(self, midi: 'pretty_midi.PrettyMIDI') -> 'pretty_midi.PrettyMIDI':
         """
         Apply random velocity variation within configured range.
         
@@ -150,7 +150,7 @@ class MIDIAugmentation:
         variation_factor = random.uniform(self.velocity_variation_range[0], self.velocity_variation_range[1])
         return self.velocity_variation(midi, variation_factor)
     
-    def time_shift(self, midi: pretty_midi.PrettyMIDI, shift_amount: float) -> pretty_midi.PrettyMIDI:
+    def time_shift(self, midi: 'pretty_midi.PrettyMIDI', shift_amount: float) -> 'pretty_midi.PrettyMIDI':
         """
         Shift all notes in time.
         
@@ -174,7 +174,7 @@ class MIDIAugmentation:
         
         return augmented
     
-    def random_time_shift(self, midi: pretty_midi.PrettyMIDI, max_duration: float = None) -> pretty_midi.PrettyMIDI:
+    def random_time_shift(self, midi: 'pretty_midi.PrettyMIDI', max_duration: float = None) -> 'pretty_midi.PrettyMIDI':
         """
         Apply random time shift within configured range.
         
@@ -192,7 +192,7 @@ class MIDIAugmentation:
         shift_amount = random.uniform(-max_shift, max_shift)
         return self.time_shift(midi, shift_amount)
     
-    def apply_random_augmentation(self, midi: pretty_midi.PrettyMIDI) -> pretty_midi.PrettyMIDI:
+    def apply_random_augmentation(self, midi: 'pretty_midi.PrettyMIDI') -> 'pretty_midi.PrettyMIDI':
         """
         Apply a random combination of augmentations.
         
@@ -222,7 +222,7 @@ class MIDIAugmentation:
         
         return augmented
     
-    def apply_all_augmentations(self, midi: pretty_midi.PrettyMIDI) -> List[pretty_midi.PrettyMIDI]:
+    def apply_all_augmentations(self, midi: 'pretty_midi.PrettyMIDI') -> List['pretty_midi.PrettyMIDI']:
         """
         Apply all augmentation techniques to create multiple augmented versions.
         
@@ -257,8 +257,8 @@ class MIDIAugmentation:
         
         return augmented_versions
     
-    def augment_dataset(self, midi_files: List[pretty_midi.PrettyMIDI], 
-                       augment_factor: int = 2) -> List[pretty_midi.PrettyMIDI]:
+    def augment_dataset(self, midi_files: List['pretty_midi.PrettyMIDI'], 
+                       augment_factor: int = 2) -> List['pretty_midi.PrettyMIDI']:
         """
         Augment a dataset of MIDI files.
         
@@ -286,9 +286,9 @@ class MIDIAugmentation:
         return augmented_dataset
 
 
-def augment_midi(midi: pretty_midi.PrettyMIDI,
+def augment_midi(midi: 'pretty_midi.PrettyMIDI',
                  augmentation_type: str = 'random',
-                 **kwargs) -> pretty_midi.PrettyMIDI:
+                 **kwargs) -> 'pretty_midi.PrettyMIDI':
     """
     Convenience function to augment a single MIDI file.
     

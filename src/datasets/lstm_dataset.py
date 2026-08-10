@@ -264,9 +264,13 @@ def prepare_lstm_dataset(train_df: pd.DataFrame,
     )
     
     if save_path:
-        # Save training data as the main dataset
-        dataset.features = X_train
-        dataset.labels = y_train
-        dataset.save_dataset(save_path)
+        ensure_dir(save_path.parent)
+        np.savez_compressed(
+            save_path,
+            X_train=X_train, y_train=y_train,
+            X_val=X_val, y_val=y_val,
+            X_test=X_test, y_test=y_test
+        )
+        print(f"Saved LSTM dataset to {save_path}")
     
     return X_train, y_train, X_val, y_val, X_test, y_test

@@ -289,10 +289,20 @@ def prepare_cnn_dataset(train_df: pd.DataFrame,
         train_df, val_df, test_df
     )
     
+    # Add channel dimension for Conv2D (batch, height, width) -> (batch, height, width, 1)
+    if X_train.ndim == 3:
+        X_train = X_train[..., np.newaxis]
+        X_val = X_val[..., np.newaxis]
+        X_test = X_test[..., np.newaxis]
+    
     if save_path:
-        # Save training data as the main dataset
-        dataset.features = X_train
-        dataset.labels = y_train
-        dataset.save_dataset(save_path)
+        ensure_dir(save_path.parent)
+        np.savez_compressed(
+            save_path,
+            X_train=X_train, y_train=y_train,
+            X_val=X_val, y_val=y_val,
+            X_test=X_test, y_test=y_test
+        )
+        print(f"Saved CNN dataset to {save_path}")
     
     return X_train, y_train, X_val, y_val, X_test, y_test

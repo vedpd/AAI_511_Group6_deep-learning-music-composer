@@ -41,7 +41,7 @@ class PianoRollExtractor:
         self.pitch_range = pitch_range
         self.fps = fps
     
-    def extract_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract piano roll from MIDI file.
         
@@ -122,7 +122,7 @@ class PianoRollExtractor:
             
             return resized
     
-    def extract_binary_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_binary_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract binary piano roll (1 if note is active, 0 otherwise).
         
@@ -136,7 +136,7 @@ class PianoRollExtractor:
         binary_roll = (piano_roll > 0).astype(np.float32)
         return binary_roll
     
-    def extract_velocity_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_velocity_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract velocity-weighted piano roll.
         
@@ -148,7 +148,7 @@ class PianoRollExtractor:
         """
         return self.extract_piano_roll(midi)
     
-    def extract_onset_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_onset_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract onset-only piano roll (1 at note onset, 0 elsewhere).
         
@@ -175,7 +175,7 @@ class PianoRollExtractor:
         
         return onset_roll
     
-    def extract_combined_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_combined_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract combined piano roll with velocity and onset information.
         
@@ -197,7 +197,7 @@ class PianoRollExtractor:
         
         return combined
     
-    def extract_multi_channel_piano_roll(self, midi: pretty_midi.PrettyMIDI) -> np.ndarray:
+    def extract_multi_channel_piano_roll(self, midi: 'pretty_midi.PrettyMIDI') -> np.ndarray:
         """
         Extract multi-channel piano roll for different instruments.
         
@@ -234,7 +234,7 @@ class PianoRollExtractor:
         return resized
 
 
-def extract_piano_roll(midi: pretty_midi.PrettyMIDI,
+def extract_piano_roll(midi: 'pretty_midi.PrettyMIDI',
                       roll_type: str = 'velocity',
                       time_steps: int = MAX_TIME_STEPS,
                       pitch_range: int = PITCH_RANGE,
