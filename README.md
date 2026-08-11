@@ -1,21 +1,22 @@
 # Composer Classification using Deep Learning
 
 **University of San Diego – MS in Applied Artificial Intelligence**  
-**Deep Learning Final Project**
+**AAI 511 Deep Learning Final Project — Group 6**
 
 ## Project Overview
 
-This project implements a complete deep learning pipeline to classify the composer of classical music pieces using MIDI files. The system compares two neural network architectures:
+This project implements a complete deep learning pipeline to classify the composer of classical piano pieces from MIDI scores. The system explores three progressively more powerful architectures:
 
-- **LSTM (Long Short-Term Memory)**: Processes sequential note-level features
-- **CNN (Convolutional Neural Network)**: Analyzes piano roll representations
+- **LSTM (Long Short-Term Memory)**: Processes sequential note-level features (baseline)
+- **CNN (Convolutional Neural Network)**: Analyzes piano roll representations (baseline)
+- **CRNN (CNN + LSTM Hybrid)**: Combines spatial and temporal modeling for superior performance (improved)
 
 ### Target Composers
 
-- Bach
-- Beethoven
-- Chopin
-- Mozart
+- **Bach** (~1,024 files) — Dense counterpoint, fugues, 4-voice textures
+- **Beethoven** (~213 files) — Dramatic dynamics, structural innovation
+- **Chopin** (~136 files) — Lyrical melody over arpeggiated accompaniment
+- **Mozart** (~257 files) — Balanced classical form, Alberti bass patterns
 
 ---
 
@@ -60,18 +61,22 @@ composer-classification/
 │   ├── checkpoints/                   # Training checkpoints
 │   └── saved_models/                  # Final trained models
 │
-├── reports/                           # Generated outputs
+├── reports/                           # Submitted reports & generated outputs
+│   ├── Composer_identification_Project_AAI_511_Group6.pdf   # Final project report (PDF)
+│   ├── Composer_Identification_Project_Report_AAI_511_Group6.docx  # Final report (Word)
 │   ├── figures/                       # Plots and visualizations
 │   └── tables/                        # Comparison tables
 │
 ├── notebooks/                         # Jupyter notebooks
+│   ├── Composer_identification_Project_AAI_511_Group6.ipynb  # ★ FINAL SUBMISSION NOTEBOOK
+│   ├── Composer_Classification_Colab_Improved.ipynb  # Improved CRNN (Google Colab)
+│   ├── Composer_Classification_Final.ipynb  # End-to-end pipeline (LSTM + CNN)
 │   ├── 01_EDA.ipynb                   # Exploratory Data Analysis
 │   ├── 02_Preprocessing.ipynb         # Data cleaning and splitting
 │   ├── 03_Feature_Extraction.ipynb    # Feature extraction for LSTM/CNN
 │   ├── 04_LSTM_Model.ipynb            # LSTM model training
 │   ├── 05_CNN_Model.ipynb             # CNN model training
-│   ├── 06_Hyperparameter_Tuning.ipynb # Hyperparameter optimization
-│   └── Composer_Classification_Final.ipynb  # Complete end-to-end pipeline
+│   └── 06_Hyperparameter_Tuning.ipynb # Hyperparameter optimization
 │
 └── src/                               # Source code
     ├── __init__.py
@@ -156,22 +161,51 @@ composer-classification/
 
 ## Quick Start
 
-### Option 1: Run the Final Notebook (Recommended)
+### Option 1: Final Submission Notebook (Recommended)
 
-Execute the complete pipeline in a single notebook:
+The **primary deliverable** is the CRNN-based notebook that achieves 77.2% test accuracy:
+
+```bash
+jupyter notebook notebooks/Composer_identification_Project_AAI_511_Group6.ipynb
+```
+
+This notebook contains the complete end-to-end pipeline:
+1. Data collection and preprocessing
+2. Piano-roll feature extraction with sliding windows
+3. CRNN model building (CNN + LSTM hybrid)
+4. Model training with class weights
+5. Hyperparameter tuning with KerasTuner Hyperband
+6. Final evaluation and per-class analysis
+
+> **Submitted reports**: See `reports/Composer_identification_Project_AAI_511_Group6.pdf` (PDF)
+> and `reports/Composer_Identification_Project_Report_AAI_511_Group6.docx` (Word) for the
+> full written project report.
+
+### Option 2: Improved CRNN on Google Colab (Improvisation on Final Model)
+
+An **improvisation on the final submitted model** that pushes performance further with
+additional design enhancements — 3 Conv blocks (vs 2), Bidirectional LSTM, 2-channel
+input (velocity + binary), Mixup augmentation, label smoothing, and Optuna-based
+hyperparameter tuning. See the full [Architecture Deep Dive](#architecture-deep-dive-why-crnn-works)
+and [Design Improvements table](#design-improvements-in-the-improved-crnn) for details.
+
+```
+notebooks/Composer_Classification_Colab_Improved.ipynb
+```
+
+1. Upload `notebooks/Composer_Classification_Colab_Improved.ipynb` to [Google Colab](https://colab.research.google.com/)
+2. Set runtime to **GPU** (Runtime → Change runtime type → T4 GPU)
+3. Run all cells sequentially — the notebook auto-downloads the dataset from Kaggle
+
+### Option 3: Baseline LSTM + CNN Notebook (Local)
+
+Execute the separate LSTM and CNN pipeline locally:
 
 ```bash
 jupyter notebook notebooks/Composer_Classification_Final.ipynb
 ```
 
-This notebook:
-1. Loads and explores the MIDI dataset
-2. Cleans and preprocesses the data
-3. Extracts features for both LSTM and CNN
-4. Trains both models
-5. Evaluates and compares results
-
-### Option 2: Run Individual Notebooks
+### Option 4: Run Individual Notebooks
 
 Execute notebooks sequentially:
 
@@ -184,7 +218,7 @@ jupyter notebook notebooks/05_CNN_Model.ipynb
 jupyter notebook notebooks/06_Hyperparameter_Tuning.ipynb
 ```
 
-### Option 3: Run from Python
+### Option 5: Run from Python
 
 ```python
 from src.utils.config import ensure_directories
@@ -241,63 +275,156 @@ Final Report
 
 ## Model Architectures
 
-### LSTM Model
+### Baseline: LSTM Model
 
 ```
-Input (sequence_length, num_features)
+Input (500 time steps, 3 features: pitch, velocity, duration)
     ↓
-Embedding (if needed)
+LSTM (256 units) → Dropout (0.3)
     ↓
 LSTM (256 units)
     ↓
-Dropout (0.3)
+Dense (512, ReLU) → Dropout (0.3)
     ↓
-LSTM (256 units)
-    ↓
-Dense (512 units, ReLU)
-    ↓
-Dropout (0.3)
-    ↓
-Dense (4 units, Softmax)
-    ↓
-Output (composer class)
+Dense (4, Softmax) → Composer class
 ```
 
-**Input**: Padded sequences of note features (pitch, duration, velocity)  
-**Optimizer**: Adam (lr=0.001)  
-**Loss**: Categorical Crossentropy  
-**Callbacks**: EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+**Strength**: Captures sequential note patterns (melody, rhythm)  
+**Weakness**: No concept of harmony — can't see what notes sound *simultaneously*
 
-### CNN Model
+### Baseline: CNN Model
 
 ```
-Input (128, time_steps, 1)
+Input (128 pitches × 1000 time frames × 1 channel)
     ↓
-Conv2D (64 filters, 3x3 kernel)
+Conv2D (64, 3×3) → MaxPool (2×2)
     ↓
-MaxPooling2D (2x2)
+Conv2D (128, 3×3) → MaxPool (2×2)
     ↓
-Conv2D (128 filters, 3x3 kernel)
+Conv2D (256, 3×3) → Flatten
     ↓
-MaxPooling2D (2x2)
+Dense (512, ReLU) → Dropout (0.3)
     ↓
-Conv2D (256 filters, 3x3 kernel)
-    ↓
-Flatten
-    ↓
-Dense (512 units, ReLU)
-    ↓
-Dropout (0.3)
-    ↓
-Dense (4 units, Softmax)
-    ↓
-Output (composer class)
+Dense (4, Softmax) → Composer class
 ```
 
-**Input**: Piano roll matrices (128 pitches × time steps)  
-**Optimizer**: Adam (lr=0.001)  
-**Loss**: Categorical Crossentropy  
-**Callbacks**: EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+**Strength**: Detects spatial patterns in the piano roll (chords, texture density)  
+**Weakness**: No temporal memory — treats the piece as a static image
+
+### Improved: CRNN (CNN → LSTM Hybrid)
+
+```
+Input (88 pitches × 60 time frames × 2 channels: velocity + binary)
+    ↓
+┌─── CNN Front-end (spatial feature extraction) ───┐
+│  Conv2D (64,  3×3) → BatchNorm → MaxPool → Drop  │
+│  Conv2D (128, 3×3) → BatchNorm → MaxPool → Drop  │
+│  Conv2D (256, 3×3) → BatchNorm → MaxPool → Drop  │
+└──────────────────────────────────────────────────-┘
+    ↓
+Permute + Reshape → (time_steps, pitch_features)
+    ↓
+┌─── LSTM Back-end (temporal modeling) ────────────┐
+│  Bidirectional LSTM (128 units, return_sequences) │
+│  Dropout (0.3)                                    │
+│  Bidirectional LSTM (64 units)                    │
+└──────────────────────────────────────────────────-┘
+    ↓
+Dense (128, ReLU) → Dropout (0.3)
+    ↓
+Dense (4, Softmax) → Composer class
+```
+
+**Input**: 2-channel piano roll windows (velocity + binary)  
+**Optimizer**: Adam with cosine decay  
+**Loss**: Categorical Crossentropy with label smoothing  
+**Regularisation**: Dropout + Mixup augmentation  
+**HP Tuning**: Optuna (Bayesian optimization with MedianPruner)
+
+---
+
+## Architecture Deep Dive: Why CRNN Works
+
+Music has **two types of patterns** that matter for composer identification:
+
+1. **Vertical patterns** — what notes sound *together* (chords, intervals, texture)
+2. **Horizontal patterns** — how notes *change over time* (melody, phrasing, dynamics)
+
+An LSTM sees only the sequence. A CNN sees only the image. **Neither alone captures both.** The CRNN solves this by chaining them.
+
+### How the CRNN Processes a Bach Fugue
+
+Imagine a Bach fugue where 4 voices enter one at a time:
+
+```
+Time →   t1  t2  t3  t4  t5  t6  t7  t8  t9  t10  t11  t12
+        ──────────────────────────────────────────────────────
+C5   │    .   .   .   .   .   .   1   1   1    .    .    1    ← Voice 3 enters
+A4   │    .   .   .   1   1   1   .   .   1    1    .    .    ← Voice 2 enters
+E4   │    1   1   1   .   .   1   1   1   .    .    .    .    ← Voice 1 (starts alone)
+C4   │    .   .   .   .   .   .   .   .   .    .    1    1    ← Voice 4 enters
+```
+
+**Step 1 — CNN layers ask: "What's happening locally?"**
+
+The Conv2D slides a 3×3 filter across the piano roll like a magnifying glass:
+
+```
+Patch at (E4, t1):              Patch at (A4, t4):
+┌───────────┐                   ┌───────────┐
+│  .   .   .  │  ← empty        │  1   1   1  │  ← two voices
+│  1   1   1  │     above       │  .   1   1  │     active
+│  .   1   1  │  ← one voice    │  .   .   .  │     together
+└───────────┘                   └───────────┘
+ "single melodic line"           "two parallel voices"
+```
+
+The CNN learns filters that activate for different textures:
+- **Filter A** fires for "single voice moving stepwise" → typical Chopin melody
+- **Filter B** fires for "two voices in close intervals" → typical Bach counterpoint
+- **Filter C** fires for "dense chord cluster" → typical Beethoven sforzando
+
+**Step 2 — The Reshape (the critical step):**
+
+Converts the CNN's 3D feature maps into a **time sequence** that the LSTM can read.
+Each time step becomes a rich summary: "what harmonic/textural patterns exist *at this moment*."
+
+**Step 3 — LSTM asks: "How does the texture evolve?"**
+
+```
+t1–t3:   "Single voice"         → Memory: [solo ✓]
+t4–t6:   "Two-voice counterpoint" → Memory: [solo ✓, counterpoint ✓, voices_increasing ✓]
+t7–t9:   "Three voices, denser"  → Memory: [voices_increasing ✓, dense ✓]
+t10–t12: "Four-voice fugue"     → Memory: [progressive voice entry = FUGUE PATTERN]
+```
+
+This temporal pattern — *voices entering one at a time into dense counterpoint* — is
+**extremely Bach-specific**. Mozart rarely writes fugues. Chopin almost never. The LSTM
+captures this because the CNN has already summarised *what's happening*, and the LSTM
+only needs to learn *how it changes*.
+
+### What Each Component Catches Per Composer
+
+| Composer | CNN Detects (spatial) | LSTM Detects (temporal) |
+|---|---|---|
+| **Bach** | High note density, multiple independent voices | Voices entering sequentially (fugue structure) |
+| **Beethoven** | Sudden clusters of high-velocity notes | Dramatic tension-release arcs |
+| **Chopin** | Wide pitch spread, sparse regular spacing | Rubato-like irregular temporal flow |
+| **Mozart** | Regular low-register pattern + single melody | Predictable, periodic phrase structure |
+
+### Why Separate Models Fail
+
+- **LSTM alone** sees `(E4, vel=80, dur=0.3), (D4, vel=75, dur=0.3), ...` — it knows E4 comes
+  before D4 but has **no idea that A4 was playing simultaneously**. Harmony is invisible.
+- **CNN alone** sees the entire piano roll as a flat image — it can spot chord shapes but
+  **has no temporal memory**. It can't distinguish "voices entering left-to-right" from
+  "voices entering right-to-left."
+- **CRNN** chains them: CNN says *"here's what's happening at each moment,"* LSTM says
+  *"here's how those moments connect into a story."*
+
+> **A fugue isn't defined by its individual notes (LSTM input) or its visual shape
+> (CNN input) — it's defined by how its *texture evolves over time*.
+> Only CNN → LSTM captures that.**
 
 ---
 
@@ -363,14 +490,36 @@ Edit `src/utils/config.py` to modify:
 
 ---
 
-## Results
+## Results & Performance Comparison
 
-The trained models are saved in `models/saved_models/`:
+| Model | Notebook | Test Accuracy | Macro F1 | Weighted F1 |
+|---|---|---|---|---|
+| LSTM (Baseline) | `Composer_Classification_Final.ipynb` | 41.2% | 39.4% | — |
+| CNN (Baseline) | `Composer_Classification_Final.ipynb` | 38.2% | ~26% | — |
+| LSTM (Optuna+Aug) | `Composer_Classification_Final.ipynb` | 46.5% | 43.4% | — |
+| CRNN (Baseline) | `Composer_identification_Project_AAI_511_Group6.ipynb` | 75.3% | 63.3% | 75.7% |
+| CRNN (Hyperband) | `Composer_identification_Project_AAI_511_Group6.ipynb` | 77.2% | 65.9% | 77.6% |
+| **Improved CRNN (Optuna)** | **`Composer_Classification_Colab_Improved.ipynb`** | **TBD** | **TBD** | **TBD** |
 
-- `lstm_composer_classifier_best.h5`: Best LSTM model (validation)
-- `lstm_composer_classifier_final.h5`: Final LSTM model (after training)
-- `cnn_composer_classifier_best.h5`: Best CNN model (validation)
-- `cnn_composer_classifier_final.h5`: Final CNN model (after training)
+### Design Improvements in the Improved CRNN
+
+| Feature | Baseline CRNN | Improved CRNN | Rationale |
+|---|---|---|---|
+| Conv blocks | 2 | **3** | Deeper feature hierarchy |
+| LSTM type | Unidirectional | **Bidirectional** | Sees past + future context |
+| Window length | 4 s (40 frames) | **6 s** (60 frames) | More musical context |
+| Windows/piece | 8 | **16** | ~2× more training data |
+| Input channels | 1 (binary) | **2** (velocity + binary) | Retains dynamics information |
+| Loss | Standard CE | **Label-smoothed CE** | Reduces over-confidence |
+| Regularisation | Dropout only | Dropout + **Mixup** | Smoother decision boundaries |
+| HP tuning | Hyperband (KerasTuner) | **Optuna** (Bayesian) | More sample-efficient search |
+
+### Saved Models
+
+- `models/saved_models/lstm_composer_classifier_best.h5`: Best LSTM model
+- `models/saved_models/cnn_composer_classifier_best.h5`: Best CNN model
+- `best_improved_crnn.keras`: Improved CRNN baseline (Colab)
+- `best_optuna_crnn.keras`: Improved CRNN after Optuna tuning (Colab)
 
 Evaluation results and visualizations are saved in `reports/`:
 
@@ -459,13 +608,13 @@ CNN_BATCH_SIZE = 16   # Default: 32
 
 ## Future Improvements
 
-- **Transformer Models**: Implement attention-based sequence models
-- **Bidirectional LSTM**: Capture context from both directions
-- **Ensemble Methods**: Combine LSTM and CNN predictions
-- **Data Augmentation**: Advanced augmentation techniques (time stretching, pitch shifting)
-- **Explainability**: Grad-CAM and attention visualization
-- **Web Deployment**: REST API and web interface
-- **Real-Time Classification**: Classify music from live MIDI input
+- **Transformer Models**: Implement attention-based sequence models (Music Transformer)
+- **Longer Analysis Windows**: 10–15 second windows for better phrase-level modeling
+- **Ensemble Methods**: Combine multiple CRNN models with different window sizes
+- **Multi-Scale Features**: Note density, polyphony degree, and tempo as additional input channels
+- **Explainability**: Grad-CAM visualization to see which piano-roll regions drive classification
+- **More Composers**: Extend to Liszt, Debussy, Schubert, etc.
+- **Web Deployment**: REST API and web interface for real-time MIDI classification
 
 ---
 
@@ -482,28 +631,31 @@ CNN_BATCH_SIZE = 16   # Default: 32
 
 This project is part of the MS in Applied Artificial Intelligence program at the University of San Diego.
 
+Licensed under the **Apache License, Version 2.0**. See the [LICENSE](LICENSE) file for the full terms.
+
+```
+Copyright 2026 Ved Prakash Dwivedi, Jagdish Mane, Tamayi Mlanda
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+```
+
 ---
-## MIT License
 
-Copyright (c) 2024 Smart Parking IoT Project
+## Contributors
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. **Ved Prakash Dwivedi**
+2. **Jagdish Mane**
+3. **Tamayi Mlanda**
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## Faculty Advisor
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+- **Prof. Azka Azka**  
+  University of San Diego – Applied Artificial Intelligence Program
+
 ---
 
 ## Contact
@@ -512,5 +664,5 @@ For questions or issues, please refer to the project documentation or contact th
 
 ---
 
-**Last Updated**: August 2024  
+**Last Updated**: August 2026  
 **Project Status**: Complete
