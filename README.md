@@ -499,7 +499,7 @@ Edit `src/utils/config.py` to modify:
 | LSTM (Optuna+Aug) | `Composer_Classification_Final.ipynb` | 46.5% | 43.4% | — |
 | CRNN (Baseline) | `Composer_identification_Project_AAI_511_Group6.ipynb` | 75.3% | 63.3% | 75.7% |
 | CRNN (Hyperband) | `Composer_identification_Project_AAI_511_Group6.ipynb` | 77.2% | 65.9% | 77.6% |
-| **Improved CRNN (Optuna)** | **`Composer_Classification_Colab_Improved.ipynb`** | **TBD** | **TBD** | **TBD** |
+| **Improved CRNN (Optuna)** | **`Composer_Classification_Colab_Improved.ipynb`** | **79.5%** | **68.5%** | **79.4%** |
 
 ### Design Improvements in the Improved CRNN
 
